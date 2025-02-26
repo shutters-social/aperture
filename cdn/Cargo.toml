@@ -4,3 +4,19 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+anyhow = "1.0.96"
+atrium-api = { version = "0.25.0", default-features = false, features = ["tokio"] }
+atrium-common = "0.1.0"
+atrium-identity = "0.1.0"
+atrium-xrpc = "0.12.1"
+atrium-xrpc-client = "0.5.11"
+axum = { version = "0.8.1", features = ["macros"] }
+image = "0.25.5"
+reqwest = "0.12.12"
+serde = { version = "1.0.218", features = ["derive"] }
+thiserror = "2.0.11"
+tokio = { version = "1.43.0", features = ["rt-multi-thread", "macros", "tracing"] }
+tower-http = { version = "0.6.2", features = ["trace"] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+tree_magic = "0.2.3"
