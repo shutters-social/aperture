@@ -23,11 +23,15 @@ pub enum CdnError {
 
     #[error("image: blob was not a valid image (unknown image type)")]
     UnknownImageType(#[from] image::ImageError),
+
+    #[error("internal server error")]
+    ServerError,
 }
 
 pub type Result<T, E = CdnError> = anyhow::Result<T, E>;
 
 impl IntoResponse for CdnError {
+    #[tracing::instrument(level = "trace", skip(self))]
     fn into_response(self) -> Response {
         let err_string = self.to_string();
 
@@ -69,6 +73,14 @@ impl IntoResponse for CdnError {
                 Json(CdnErrorResponse {
                     error: err_string,
                     reason: Some(err.to_string()),
+                })
+            ).into_response(),
+
+            CdnError::ServerError => (
+                StatusCode::BAD_REQUEST,
+                Json(CdnErrorResponse {
+                    error: err_string,
+                    reason: None,
                 })
             ).into_response(),
         }

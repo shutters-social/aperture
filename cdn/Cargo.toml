@@ -10,13 +10,19 @@ atrium-common = "0.1.0"
 atrium-identity = "0.1.0"
 atrium-xrpc = "0.12.1"
 atrium-xrpc-client = "0.5.11"
+aws-config = "1.5.17"
+aws-sdk-s3 = "1.77.0"
 axum = { version = "0.8.1", features = ["macros"] }
+cid = "0.11.1"
 image = "0.25.5"
+lazy_static = "1.5.0"
+multihash-codetable = { version = "0.1.4", features = ["sha2"] }
 reqwest = "0.12.12"
 serde = { version = "1.0.218", features = ["derive"] }
+serde_json = "1.0.140"
 thiserror = "2.0.11"
-tokio = { version = "1.43.0", features = ["rt-multi-thread", "macros", "tracing"] }
+tokio = { version = "1.43.0", features = ["rt-multi-thread", "macros", "tracing", "sync"] }
 tower-http = { version = "0.6.2", features = ["trace"] }
-tracing = "0.1.41"
+tracing = { version = "0.1.41", features = ["attributes"] }
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 tree_magic = "0.2.3"
