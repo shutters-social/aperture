@@ -1,9 +1,11 @@
-use image::{DynamicImage, imageops::FilterType};
+use libvips::VipsImage;
 use serde::{Deserialize, Serialize};
 use tracing::instrument;
 
-const AVATAR_WIDTH: u32 = 256;
-const AVATAR_HEIGHT: u32 = 256;
+use crate::errors::Result;
+
+const AVATAR_WIDTH: i32 = 256;
+const AVATAR_HEIGHT: i32 = 256;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ImagePreset {
@@ -19,11 +21,33 @@ pub enum ImagePreset {
 
 impl ImagePreset {
     #[instrument(skip(img))]
-    pub fn process(self, img: DynamicImage) -> DynamicImage {
+    pub fn process(self, img: VipsImage) -> Result<VipsImage> {
         match self {
-            Self::Avatar => img.resize_to_fill(AVATAR_WIDTH, AVATAR_HEIGHT, FilterType::Gaussian),
-            Self::FeedThumbnail => img.resize_to_fill(512, 512, FilterType::Gaussian),
-            _ => img,
+            Self::Avatar => {
+                let width = img.get_width();
+                let height = img.get_height();
+
+                let hshrink = width / AVATAR_WIDTH;
+                let vshrink = height / AVATAR_HEIGHT;
+
+                let img = libvips::ops::shrinkh(&img, hshrink)?;
+                let img = libvips::ops::shrinkv(&img, vshrink)?;
+
+                Ok(img)
+            },
+            Self::FeedThumbnail => {
+                let width = img.get_width();
+                let height = img.get_height();
+
+                let hshrink = width / AVATAR_WIDTH;
+                let vshrink = height / AVATAR_HEIGHT;
+
+                let img = libvips::ops::shrinkh(&img, hshrink)?;
+                let img = libvips::ops::shrinkv(&img, vshrink)?;
+
+                Ok(img)
+            },
+            _ => Ok(img),
         }
     }
 }
@@ -40,13 +64,13 @@ pub enum ImageFormat {
     WEBP,
 }
 
-impl Into<image::ImageFormat> for ImageFormat {
+impl ImageFormat {
     #[tracing::instrument(level = "trace", skip(self))]
-    fn into(self) -> image::ImageFormat {
+    pub fn to_mime_type(self) -> &'static str {
         match self {
-            ImageFormat::JPEG => image::ImageFormat::Jpeg,
-            ImageFormat::PNG => image::ImageFormat::Png,
-            ImageFormat::WEBP => image::ImageFormat::WebP,
+            ImageFormat::JPEG => "image/jpeg",
+            ImageFormat::PNG => "image/png",
+            ImageFormat::WEBP => "image/webp",
         }
     }
 }

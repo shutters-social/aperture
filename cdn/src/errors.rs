@@ -24,6 +24,9 @@ pub enum CdnError {
     #[error("image: blob was not a valid image (unknown image type)")]
     UnknownImageType(#[from] image::ImageError),
 
+    #[error("image: failure to process image")]
+    VipsError(#[from] libvips::error::Error),
+
     #[error("internal server error")]
     ServerError,
 }
@@ -69,6 +72,14 @@ impl IntoResponse for CdnError {
             ).into_response(),
 
             CdnError::UnknownImageType(err) => (
+                StatusCode::BAD_REQUEST,
+                Json(CdnErrorResponse {
+                    error: err_string,
+                    reason: Some(err.to_string()),
+                })
+            ).into_response(),
+
+            CdnError::VipsError(err) => (
                 StatusCode::BAD_REQUEST,
                 Json(CdnErrorResponse {
                     error: err_string,

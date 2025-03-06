@@ -30,6 +30,9 @@ async fn main() {
         .with(tracing_subscriber::fmt::layer())
         .init();
 
+    let vips = libvips::VipsApp::new("cdn-libvips", true).unwrap();
+    vips.concurrency_set(2);
+
     let aws_cfg = aws_config::defaults(BehaviorVersion::v2024_03_28())
         .load()
         .await;

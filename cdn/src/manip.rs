@@ -1,20 +1,23 @@
-use std::io::Cursor;
-
-use anyhow::Result;
-use image::{DynamicImage, ImageReader};
+use crate::errors::Result;
+use libvips::{
+    VipsImage,
+    ops::{jpegsave_buffer, pngsave_buffer, webpsave_buffer},
+};
 
 use crate::presets::ImageFormat;
 
 #[tracing::instrument(skip(image_data))]
-pub fn read_image(image_data: &[u8]) -> Result<DynamicImage> {
-    Ok(ImageReader::new(Cursor::new(image_data))
-        .with_guessed_format()?
-        .decode()?)
+pub fn read_image(image_data: &[u8]) -> Result<VipsImage> {
+    Ok(VipsImage::new_from_buffer(image_data, "")?)
 }
 
 #[tracing::instrument(skip(image))]
-pub fn get_image_bytes(image: DynamicImage, format: ImageFormat) -> Result<Vec<u8>> {
-    let mut out_data: Vec<u8> = Vec::new();
-    image.write_to(&mut Cursor::new(&mut out_data), format.into())?;
-    Ok(out_data)
+pub fn get_image_bytes(image: VipsImage, format: ImageFormat) -> Result<Vec<u8>> {
+    let bytes = match format {
+        ImageFormat::PNG => pngsave_buffer(&image),
+        ImageFormat::JPEG => jpegsave_buffer(&image),
+        ImageFormat::WEBP => webpsave_buffer(&image),
+    }?;
+
+    Ok(bytes)
 }
