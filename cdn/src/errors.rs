@@ -21,9 +21,6 @@ pub enum CdnError {
     #[error("image: blob was not a valid image")]
     InvalidImage,
 
-    #[error("image: blob was not a valid image (unknown image type)")]
-    UnknownImageType(#[from] image::ImageError),
-
     #[error("image: failure to process image")]
     VipsError(#[from] libvips::error::Error),
 
